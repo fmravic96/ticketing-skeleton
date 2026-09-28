@@ -15,7 +15,9 @@ export default function SignupPage() {
       <Card>
         <CardHeader>
           <CardTitle>Create account</CardTitle>
-          <CardDescription>Email and password. Confirmation is off on the local stack.</CardDescription>
+          <CardDescription>
+            An account starts an organization. You are its owner.
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <AuthForm mode="sign-up" />

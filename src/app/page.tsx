@@ -12,9 +12,9 @@ export default async function HomePage() {
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center gap-8 px-4 py-16">
       <div className="flex flex-col gap-3">
         <p className="text-sm text-muted-foreground">Organizer workspace</p>
-        <h1 className="text-4xl font-medium tracking-tight">Events you run, in one list.</h1>
+        <h1 className="text-4xl font-medium tracking-tight">The organizer portal.</h1>
         <p className="max-w-md text-muted-foreground">
-          Sign in to keep a profile and the events you own. Tickets, holds, and payments come later.
+          Organizations, teammates, and the events they run. The public storefront is a separate app.
         </p>
       </div>
       <div className="flex gap-3">

@@ -3,9 +3,9 @@
 import { useActionState } from "react"
 
 import { signIn, signUp, type AuthState } from "@/app/auth/actions"
+import { Field, FormNote } from "@/components/form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 
 export function AuthForm({
   mode,
@@ -20,17 +20,25 @@ export function AuthForm({
   return (
     <form action={formAction} className="flex flex-col gap-4">
       {mode === "sign-up" ? (
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="displayName">Display name</Label>
-          <Input id="displayName" name="displayName" autoComplete="name" />
-        </div>
+        <>
+          <Field label="Organization" htmlFor="organizationName">
+            <Input
+              id="organizationName"
+              name="organizationName"
+              autoComplete="organization"
+              required
+              minLength={2}
+            />
+          </Field>
+          <Field label="Your name" htmlFor="displayName">
+            <Input id="displayName" name="displayName" autoComplete="name" />
+          </Field>
+        </>
       ) : null}
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+      <Field label="Email" htmlFor="email">
         <Input id="email" name="email" type="email" autoComplete="email" required />
-      </div>
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Password</Label>
+      </Field>
+      <Field label="Password" htmlFor="password">
         <Input
           id="password"
           name="password"
@@ -39,9 +47,9 @@ export function AuthForm({
           minLength={6}
           required
         />
-      </div>
+      </Field>
       {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
-      {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
+      <FormNote message={state?.error} />
       <Button type="submit" disabled={pending}>
         {pending ? "Working…" : mode === "sign-in" ? "Sign in" : "Create account"}
       </Button>

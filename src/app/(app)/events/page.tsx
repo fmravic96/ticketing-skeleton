@@ -2,13 +2,16 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { formatEventStart } from "@/lib/datetime"
+import { requireCurrentOrg } from "@/lib/org"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function EventsPage() {
+  const { org } = await requireCurrentOrg()
   const supabase = await createClient()
   const { data: events } = await supabase
     .from("events")
-    .select("id, title, starts_at, capacity")
+    .select("id, title, starts_at, venue, capacity, status")
+    .eq("organization_id", org.id)
     .order("starts_at", { ascending: true })
 
   return (
@@ -16,7 +19,7 @@ export default async function EventsPage() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-medium tracking-tight">Events</h1>
-          <p className="text-sm text-muted-foreground">Events owned by this account.</p>
+          <p className="text-sm text-muted-foreground">Events for {org.name}.</p>
         </div>
         <Button nativeButton={false} render={<Link href="/events/new" />}>
           New event
@@ -34,9 +37,13 @@ export default async function EventsPage() {
                   <span className="block font-medium">{event.title}</span>
                   <span className="text-sm text-muted-foreground">
                     {formatEventStart(event.starts_at)}
+                    {event.venue ? ` · ${event.venue}` : ""}
                   </span>
                 </span>
-                <span className="text-sm text-muted-foreground">{event.capacity} seats</span>
+                <span className="text-right text-sm text-muted-foreground">
+                  <span className="block capitalize">{event.status}</span>
+                  <span>{event.capacity} seats</span>
+                </span>
               </Link>
             </li>
           ))}

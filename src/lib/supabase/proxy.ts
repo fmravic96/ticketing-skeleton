@@ -43,7 +43,8 @@ export async function updateSession(request: NextRequest) {
   const userId = data?.claims?.sub
   const path = request.nextUrl.pathname
   const isAuthRoute = path === "/login" || path === "/signup"
-  const isProtected = path.startsWith("/events") || path.startsWith("/account")
+  const isProtected =
+    path.startsWith("/events") || path.startsWith("/members") || path.startsWith("/account")
 
   if (!userId && isProtected) {
     const url = request.nextUrl.clone()

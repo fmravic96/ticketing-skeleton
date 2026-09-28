@@ -1,6 +1,6 @@
 # Ticketing skeleton
 
-Next.js UI with Supabase Auth, Postgres, and row-level security. This slice covers organizer sign-up, a profile, and owned events. Holds, payments, and check-in are not here.
+Next.js organizer portal with Supabase Auth, Postgres, and row-level security. Signing up creates an organization, and that organization is the current tenant for `/events` and `/members`. An event has draft or published status and one or more ticket types (name, euro price in cents, quantity). Checkout, fees, and the customer storefront are not in this repo.
 
 ## Requirements
 
@@ -30,3 +30,5 @@ The publishable key in `.env.example` is the public local demo anon key. If `sup
 Email confirmation is off in `supabase/config.toml`, so a new account can sign in immediately.
 
 Stop the stack with `pnpm exec supabase stop`.
+
+`pnpm check` runs lint, typecheck, and unit tests. GitHub Actions runs it on every push and pull request.

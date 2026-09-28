@@ -1,89 +1,62 @@
 "use server"
 
-import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
-import { requireUser } from "@/lib/auth"
+import { dbErrorMessage } from "@/lib/errors"
+import { readEvent } from "@/lib/events"
+import { requireCurrentOrg } from "@/lib/org"
 import { createClient } from "@/lib/supabase/server"
 
 export type EventFormState = { error: string } | null
 
-function readEvent(formData: FormData) {
-  const title = String(formData.get("title") ?? "").trim()
-  const startsAtRaw = String(formData.get("startsAt") ?? "")
-  const capacity = Number(formData.get("capacity"))
-  const startsAt = new Date(startsAtRaw)
+async function saveEvent(eventId: string | null, formData: FormData) {
+  const { org } = await requireCurrentOrg()
+  const parsed = readEvent(formData)
+  if (!parsed.ok) return { error: parsed.error }
 
-  if (!title) return { ok: false as const, error: "Title is required." }
-  if (Number.isNaN(startsAt.getTime())) {
-    return { ok: false as const, error: "Start time is required." }
-  }
-  if (!Number.isInteger(capacity) || capacity < 1) {
-    return { ok: false as const, error: "Capacity must be a whole number greater than zero." }
-  }
+  const event = parsed.value
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("save_event", {
+    event_id: eventId,
+    org_id: org.id,
+    event_title: event.title,
+    event_description: event.description ?? "",
+    event_venue: event.venue ?? "",
+    event_starts_at: event.starts_at,
+    event_ends_at: event.ends_at,
+    event_capacity: event.capacity,
+    event_status: event.status,
+    tickets: event.tickets,
+  })
 
-  return {
-    ok: true as const,
-    title,
-    starts_at: startsAt.toISOString(),
-    capacity,
-  }
+  if (error || !data) return { error: error ? dbErrorMessage(error) : "Could not save the event." }
+  revalidatePath("/events")
+  revalidatePath(`/events/${data}`)
+  redirect("/events")
 }
 
 export async function createEvent(
   _state: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
-  const claims = await requireUser()
-  const parsed = readEvent(formData)
-  if (!parsed.ok) return { error: parsed.error }
-
-  const supabase = await createClient()
-  const { error } = await supabase.from("events").insert({
-    owner_id: claims.sub,
-    title: parsed.title,
-    starts_at: parsed.starts_at,
-    capacity: parsed.capacity,
-  })
-
-  if (error) return { error: error.message }
-  revalidatePath("/events")
-  redirect("/events")
+  return saveEvent(null, formData)
 }
 
 export async function updateEvent(
   _state: EventFormState,
   formData: FormData,
 ): Promise<EventFormState> {
-  await requireUser()
   const id = String(formData.get("id") ?? "")
-  const parsed = readEvent(formData)
-  if (!parsed.ok) return { error: parsed.error }
-
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from("events")
-    .update({
-      title: parsed.title,
-      starts_at: parsed.starts_at,
-      capacity: parsed.capacity,
-    })
-    .eq("id", id)
-    .select("id")
-    .maybeSingle()
-
-  if (error) return { error: error.message }
-  if (!data) return { error: "Event not found." }
-  revalidatePath("/events")
-  revalidatePath(`/events/${id}`)
-  redirect("/events")
+  if (!id) return { error: "Event not found." }
+  return saveEvent(id, formData)
 }
 
 export async function deleteEvent(formData: FormData) {
-  await requireUser()
+  const { org } = await requireCurrentOrg()
   const id = String(formData.get("id") ?? "")
   const supabase = await createClient()
-  await supabase.from("events").delete().eq("id", id)
+  await supabase.from("events").delete().eq("id", id).eq("organization_id", org.id)
   revalidatePath("/events")
   redirect("/events")
 }

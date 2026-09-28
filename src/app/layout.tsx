@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Ticketing",
-  description: "Organizer accounts and event listings.",
+  description: "Organizer portal for organizations, members, and events.",
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

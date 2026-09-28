@@ -1,9 +1,12 @@
 import { AppShell } from "@/components/app-shell"
-import { requireUser } from "@/lib/auth"
+import { requireCurrentOrg } from "@/lib/org"
 
 export default async function SignedInLayout({ children }: LayoutProps<"/">) {
-  const claims = await requireUser()
-  const email = typeof claims.email === "string" ? claims.email : ""
+  const { email, org, memberships } = await requireCurrentOrg()
 
-  return <AppShell email={email}>{children}</AppShell>
+  return (
+    <AppShell email={email} org={org} memberships={memberships}>
+      {children}
+    </AppShell>
+  )
 }
