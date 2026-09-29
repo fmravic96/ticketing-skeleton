@@ -5,6 +5,7 @@ import { EventForm } from "@/components/event-form"
 import { Button } from "@/components/ui/button"
 import { toDatetimeLocalValue } from "@/lib/datetime"
 import { centsToEurosInput } from "@/lib/events"
+import { eventImageUrl } from "@/lib/images"
 import { requireCurrentOrg } from "@/lib/org"
 import { createClient } from "@/lib/supabase/server"
 
@@ -14,7 +15,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   const supabase = await createClient()
   const { data: event } = await supabase
     .from("events")
-    .select("id, title, description, venue, starts_at, ends_at, capacity, status")
+    .select("id, title, description, venue, starts_at, ends_at, capacity, status, image_path")
     .eq("id", id)
     .eq("organization_id", org.id)
     .maybeSingle()
@@ -48,6 +49,7 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
             price: centsToEurosInput(ticket.price_cents),
             quantity: String(ticket.quantity),
           })),
+          imageUrl: eventImageUrl(event.image_path),
         }}
       />
       <form action={deleteEvent}>

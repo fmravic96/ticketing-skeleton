@@ -2,6 +2,7 @@ import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { formatEventStart } from "@/lib/datetime"
+import { eventImageUrl } from "@/lib/images"
 import { requireCurrentOrg } from "@/lib/org"
 import { createClient } from "@/lib/supabase/server"
 
@@ -10,7 +11,7 @@ export default async function EventsPage() {
   const supabase = await createClient()
   const { data: events } = await supabase
     .from("events")
-    .select("id, title, starts_at, venue, capacity, status")
+    .select("id, title, starts_at, venue, capacity, status, image_path")
     .eq("organization_id", org.id)
     .order("starts_at", { ascending: true })
 
@@ -27,26 +28,37 @@ export default async function EventsPage() {
       </div>
       {events?.length ? (
         <ul className="divide-y rounded-xl ring-1 ring-foreground/10">
-          {events.map((event) => (
-            <li key={event.id}>
-              <Link
-                href={`/events/${event.id}`}
-                className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted/60"
-              >
-                <span>
-                  <span className="block font-medium">{event.title}</span>
-                  <span className="text-sm text-muted-foreground">
-                    {formatEventStart(event.starts_at)}
-                    {event.venue ? ` · ${event.venue}` : ""}
+          {events.map((event) => {
+            const imageUrl = eventImageUrl(event.image_path)
+            return (
+              <li key={event.id}>
+                <Link
+                  href={`/events/${event.id}`}
+                  className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted/60"
+                >
+                  {imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imageUrl}
+                      alt=""
+                      className="size-12 shrink-0 rounded-md object-cover"
+                    />
+                  ) : null}
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium">{event.title}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {formatEventStart(event.starts_at)}
+                      {event.venue ? ` · ${event.venue}` : ""}
+                    </span>
                   </span>
-                </span>
-                <span className="text-right text-sm text-muted-foreground">
-                  <span className="block capitalize">{event.status}</span>
-                  <span>{event.capacity} seats</span>
-                </span>
-              </Link>
-            </li>
-          ))}
+                  <span className="text-right text-sm text-muted-foreground">
+                    <span className="block capitalize">{event.status}</span>
+                    <span>{event.capacity} seats</span>
+                  </span>
+                </Link>
+              </li>
+            )
+          })}
         </ul>
       ) : (
         <p className="rounded-xl px-4 py-8 text-sm text-muted-foreground ring-1 ring-foreground/10">

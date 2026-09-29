@@ -104,6 +104,7 @@ export type Database = {
           ends_at: string | null
           capacity: number
           status: "draft" | "published"
+          image_path: string | null
           created_at: string
         }
         Insert: {
@@ -116,6 +117,7 @@ export type Database = {
           ends_at?: string | null
           capacity: number
           status?: "draft" | "published"
+          image_path?: string | null
           created_at?: string
         }
         Update: {
@@ -126,6 +128,7 @@ export type Database = {
           ends_at?: string | null
           capacity?: number
           status?: "draft" | "published"
+          image_path?: string | null
         }
         Relationships: []
       }
@@ -191,6 +194,7 @@ export type Database = {
           event_capacity: number
           event_status: string
           tickets: { name: string; price_cents: number; quantity: number }[]
+          event_image_path: string | null
         }
         Returns: string
       }

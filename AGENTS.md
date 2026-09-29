@@ -22,6 +22,7 @@ Use the small rules below. Skip patterns that need a second service, a generic C
 - **Money is integer cents.** No floats. Currency is EUR until a second currency is an actual decision. Fees, tax, promo codes, and checkout are out of scope until a purchase flow exists.
 - **Name the product words.** Tables and fields say event, ticket type, organization, and member. Status is explicit (`draft` or `published`), not inferred from empty fields.
 - **Do not split the deploy early.** Cache, queues, and a separate checkout process wait until a measured hot path needs them. Inventory correctness later is a transaction, not a new framework.
+- **Files stay in Supabase Storage.** An event image is one object under the organization id, and that path is saved with the event. Do not add a second storage vendor for a cover image.
 
 ## Where code goes
 

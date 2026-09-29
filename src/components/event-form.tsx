@@ -24,6 +24,7 @@ export function EventForm({
     capacity: number
     status: EventStatus
     tickets: TicketFormValue[]
+    imageUrl: string | null
   }
 }) {
   const action = event ? updateEvent : createEvent
@@ -82,6 +83,20 @@ export function EventForm({
       </div>
       <Field label="Description" htmlFor="description">
         <Textarea id="description" name="description" rows={4} defaultValue={event?.description} />
+      </Field>
+      <Field label="Cover image" htmlFor="image">
+        {event?.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={event.imageUrl} alt="" className="mb-2 h-32 w-full rounded-lg object-cover" />
+        ) : null}
+        <Input id="image" name="image" type="file" accept="image/jpeg,image/png,image/webp" />
+        <p className="text-sm text-muted-foreground">JPEG, PNG, or WebP. 2 MB or smaller.</p>
+        {event?.imageUrl ? (
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="removeImage" />
+            Remove image
+          </label>
+        ) : null}
       </Field>
       <fieldset className="flex flex-col gap-3">
         <legend className="text-sm font-medium">Ticket types</legend>
